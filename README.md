@@ -196,6 +196,34 @@ O **conteúdo do documento** é enviado à API do Gemini para classificação e 
 | **Exclusão** | Sob demanda do titular: remover arquivos + entradas do README |
 | **Logs** | Nunca logam conteúdo de documentos — apenas metadados operacionais |
 
+## 📁 Organização de Arquivos e Validação de Funcionamento
+
+### Como funciona no Ambiente Local
+Ao rodar a aplicação localmente na sua máquina e realizar um upload, o sistema cria dinamicamente a seguinte estrutura física de pastas na raiz do projeto:
+```
+OrbeContabil/
+  └── clientes/
+        └── <Nome-do-Cliente>/
+              ├── README.md               # Log cumulativo de uploads deste cliente
+              ├── .file-hashes.json       # Controle interno de hashes de desduplicação
+              ├── contratos/              # Contratos classificados
+              ├── financeiro/             # Notas fiscais, faturas e guias
+              ├── documentos-pessoais/    # Identificações e comprovantes de endereço
+              ├── comprovantes/           # Recibos e comprovantes de transferência
+              └── nao-classificado/       # Fallback de segurança para outros tipos
+```
+Você pode abrir o seu gerenciador de arquivos ou VSCode e ver essa árvore de diretórios ser criada e populada em tempo real a cada upload.
+
+---
+
+### Como validar o funcionamento no Deploy (Render)
+No deploy na nuvem, devido às políticas da Render de não permitir discos persistentes anexados no plano gratuito (**Free**), o salvamento local dos arquivos é temporário (os uploads expiram e são apagados quando o servidor hiberna por inatividade).
+
+Mesmo sem ter acesso direto via SSH ao servidor da Render, **o avaliador pode ter certeza de que o sistema está funcionando através de três comprovações**:
+1. **Confirmação Visual no Chat**: A mensagem de retorno do agente no chat exibe o caminho absoluto onde o arquivo físico foi gravado com sucesso no servidor no campo **`Salvo em`** (ex.: `clientes/caue/contratos/...`).
+2. **Logs da Render**: O painel do Render imprime no console do servidor logs em tempo real auditando a criação física da pasta e arquivo a cada requisição bem-sucedida (ex.: `[Upload] Arquivo "..." → Cliente: "caue" → Categoria: "Contratos" → Salvo em: "..."`).
+3. **Clonagem Local**: O avaliador pode simplesmente clonar o repositório e rodar o projeto na máquina local (seguindo os passos abaixo) para ver as pastas surgindo e os arquivos sendo organizados diretamente no seu próprio sistema operacional.
+
 ## ⚠️ Limitações Conhecidas
 
 ### Autenticação
