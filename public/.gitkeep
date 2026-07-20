@@ -1,0 +1,2 @@
+# Mantém esta pasta no controle de versão.
+# A pasta public é exigida pelo Dockerfile do Next.js standalone.
