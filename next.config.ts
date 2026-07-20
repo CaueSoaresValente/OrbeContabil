@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   // Increase the body size limit for file uploads (default is 1MB)
   // We support up to 10MB files
   experimental: {
