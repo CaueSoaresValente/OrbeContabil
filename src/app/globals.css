@@ -360,6 +360,8 @@ body::before {
 }
 
 .client-selector {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -379,7 +381,7 @@ body::before {
 }
 
 .client-selector__input {
-  flex: 1;
+  width: 100%;
   background: transparent;
   border: none;
   outline: none;
@@ -399,14 +401,14 @@ body::before {
 
 .client-selector__dropdown {
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 0;
   right: 0;
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  margin-top: 4px;
-  max-height: 200px;
+  margin-bottom: 6px;
+  max-height: 180px;
   overflow-y: auto;
   z-index: 50;
   box-shadow: var(--shadow-lg);

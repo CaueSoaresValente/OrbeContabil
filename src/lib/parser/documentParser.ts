@@ -74,12 +74,11 @@ async function parsePdf(
   fileName: string
 ): Promise<ParsedDocument> {
   try {
-    // Importação dinâmica — pdf-parse v2+ exporta PDFParse como named export
-    const { PDFParse } = await import("pdf-parse");
-    const parser = new PDFParse({ data: new Uint8Array(buffer) });
-    const textResult = await parser.getText();
-    const extractedText = textResult.text?.trim() || "";
-    await parser.destroy();
+    // Importação dinâmica para evitar problemas de bundle no cliente
+    const pdfParseModule = await import("pdf-parse");
+    const pdfParse = pdfParseModule.default ?? pdfParseModule;
+    const pdfData = await pdfParse(buffer);
+    const extractedText = pdfData.text?.trim() || "";
 
     /*
      * FALLBACK PARA PDF ESCANEADO:
@@ -131,8 +130,11 @@ async function convertPdfPageToImage(buffer: Buffer): Promise<ParsedDocument> {
     // Converte apenas a primeira página (página 1)
     const result = await converter(1, { responseType: "buffer" });
 
-    if (!result?.buffer) {
-      throw new Error("pdf2pic não retornou buffer da conversão");
+    if (!result?.buffer || result.buffer.byteLength === 0) {
+      throw new Error(
+        "A conversão de PDF para imagem gerou um arquivo vazio (0 bytes). " +
+          "Certifique-se de que o Ghostscript e o GraphicsMagick estão instalados e disponíveis no PATH do seu sistema."
+      );
     }
 
     return {

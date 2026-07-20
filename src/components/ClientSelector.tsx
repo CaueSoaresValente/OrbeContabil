@@ -25,17 +25,18 @@ export function ClientSelector({
   const [filteredClients, setFilteredClients] = useState<string[]>([]);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Buscar clientes existentes da API
-  useEffect(() => {
-    async function fetchClients() {
-      try {
-        const res = await fetch("/api/clients");
-        const data = await res.json();
-        setClients(data.clients || []);
-      } catch {
-        // Silenciosamente falha — o campo continua funcional
-      }
+  const fetchClients = async () => {
+    try {
+      const res = await fetch("/api/clients");
+      const data = await res.json();
+      setClients(data.clients || []);
+    } catch {
+      // Silenciosamente falha — o campo continua funcional
     }
+  };
+
+  // Buscar clientes existentes da API no mount
+  useEffect(() => {
     fetchClients();
   }, []);
 
@@ -81,7 +82,10 @@ export function ClientSelector({
             onChange(e.target.value);
             setIsOpen(true);
           }}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsOpen(true);
+            fetchClients(); // Busca atualizações ao focar no campo
+          }}
           disabled={disabled}
           autoComplete="off"
         />
