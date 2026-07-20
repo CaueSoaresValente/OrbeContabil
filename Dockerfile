@@ -4,6 +4,7 @@
 
 # 1. Etapa de dependências e build
 FROM node:20-alpine AS builder
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Instala dependências do Next.js
@@ -28,8 +29,8 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Instala GraphicsMagick e Ghostscript nativos no Linux Alpine
-RUN apk add --no-cache graphicsmagick ghostscript
+# Instala dependências nativas no Linux Alpine (incluindo libc6-compat para sharp)
+RUN apk add --no-cache graphicsmagick ghostscript libc6-compat
 
 # Cria o usuário do Next.js para segurança
 RUN addgroup --system --gid 1001 nodejs
@@ -39,11 +40,11 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copia a pasta de testes contendo o PDF dummy do pdf-parse
+COPY --from=builder --chown=nextjs:nodejs /app/test ./test
 
 # Cria a pasta de clientes e atribui permissões
 RUN mkdir -p /app/clientes && chown -R nextjs:nodejs /app/clientes
-# Cria a pasta de testes para o pdf-parse
-RUN mkdir -p /app/test/data && chown -R nextjs:nodejs /app/test
 
 # Define volumes para persistência de dados fora do container
 VOLUME ["/app/clientes"]
